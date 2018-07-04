@@ -45,14 +45,13 @@ class AlertsController < ApplicationController
         human_downtime_parts = ActiveSupport::Duration.build(downtime_seconds).parts
         human_downtime = human_downtime_parts.map{|k,v| "#{v.round(0)} #{k}"}.to_sentence
 
-        if status[:connected]
-          connected = status[:connected] ? "connected" : "disconnected"
-          if status[:last_disconnected].present?
-            @additional_message = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
-          end
-          @connected_class = connected ? "text-success" : "text-danger"
-          @message = "#{status[:thermostat_name]} is #{connected} as of #{status[:last_status].strftime("%a %-m/%-d/%Y %l:%M %p")}."
+        connected = status[:connected] ? "connected" : "disconnected"
+        @connected_class = connected ? "text-success" : "text-danger"
+
+        if status[:last_disconnected].present? && downtime_seconds.positive?
+          @additional_message = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
         end
+        @message = "#{status[:thermostat_name]} is #{connected} as of #{status[:last_status].strftime("%a %-m/%-d/%Y %l:%M %p")}."
       else
         @error = "#{status[:response_code]} error: #{status[:full_response]}"
       end     
