@@ -1,0 +1,17 @@
+center
+  - if params[:code].present?
+    - if @error.present?
+      h3= @error
+      h3= link_to "Try again", root_url(phone: params[:phone])
+    - else
+      h2 Success!
+      h3= link_to "View status", root_url
+  - elsif params[:phone].present?
+    h2= @pin_message
+    h3= link_to "Ecobee portal", "https://www.ecobee.com/consumerportal/index.html#/my-apps/add/new", target: :blank
+    h3= link_to "Done, next step.", root_url(code: @code, phone: params[:phone])
+  - else
+    - if @message.present?
+      h2= @message
+    p
+      | Revisit this page with the "?phone=15556667777" url parameter if you wish to create a new user (using your phone number with the country code + area code).
