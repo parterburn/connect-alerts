@@ -35,10 +35,12 @@ class User < ApplicationRecord
       {
         thermostat_name:   thermostat["name"],
         thermostat_id:     thermostat["identifier"],
-        connected:         thermostat["runtime"]["connected"],
+        connected:         thermostat["runtime"].try(:[], "connected"),
         last_status:       last_status,
         last_disconnected: last_disconnected,
-        last_connected:    last_connected
+        last_connected:    last_connected,
+        response_code:     resp.response.code,
+        full_response:     resp.parsed_response
       }
     end
   end
