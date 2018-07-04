@@ -47,7 +47,7 @@ class AlertsController < ApplicationController
       if status[:connected]
         connected = status[:connected] ? "connected" : "disconnected"
         if status[:last_disconnected].present?
-          add_msg = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} until #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
+          add_msg = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
         end
         @message = "#{status[:thermostat_name]} is #{connected} as of #{status[:last_status].strftime("%a %-m/%-d/%Y %l:%M %p")}.#{add_msg}"
       end      
