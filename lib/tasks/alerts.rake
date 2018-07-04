@@ -11,9 +11,9 @@ namespace :alerts do
         downtime_seconds = (user.last_connected.to_i - user.last_disconnected.to_i)
         human_downtime_parts = ActiveSupport::Duration.build(downtime_seconds).parts
         human_downtime = human_downtime_parts.map{|k,v| "#{v.round(0)} #{k}"}.to_sentence
-        message = "#{user.thermostat_name} was disconnected for #{human_downtime} from #{user.last_disconnected.in_time_zone(Rails.application.credentials.timezone).strftime("%a %-m/%-d %l:%M %p")} until #{user.last_connected.in_time_zone(Rails.application.credentials.timezone).strftime("%a %-m/%-d %l:%M %p")}"
+        message = "#{user.thermostat_name} was disconnected for #{human_downtime} from #{user.last_disconnected.strftime("%a %-m/%-d %l:%M %p")} until #{user.last_connected.strftime("%a %-m/%-d %l:%M %p")}"
       elsif changed && !user.connected?
-        message = "#{user.thermostat_name} was disconnected at #{user.last_disconnected.in_time_zone(Rails.application.credentials.timezone).strftime("%a %-m/%-d %l:%M %p")}"
+        message = "#{user.thermostat_name} was disconnected at #{user.last_disconnected.strftime("%a %-m/%-d %l:%M %p")}"
       end
 
       if changed

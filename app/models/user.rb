@@ -26,13 +26,17 @@ class User < ApplicationRecord
     generate_new_tokens
     resp = HTTParty.get('https://api.ecobee.com/1/thermostat?json={"selection":{"includeAlerts":"true","selectionType":"registered","selectionMatch":"","includeRuntime":"true"}}', headers: {"Authorization" => "Bearer #{access_token}"})
     thermostat = resp.parsed_response["thermostatList"]&.first
+    local_time_offset = (thermostat["thermostatTime"].to_i - thermostat["utcTime"].to_i).to_f / 60 / 60
+    last_disconnected = DateTime.parse(thermostat["runtime"]["disconnectDateTime"])&.in_time_zone(local_time_offset) rescue nil
+    last_connected = DateTime.parse(thermostat["runtime"]["connectDateTime"])&.in_time_zone(local_time_offset) rescue nil
+
     if thermostat.present?
       {
         thermostat_name:   thermostat["name"],
         thermostat_id:     thermostat["identifier"],
         connected:         thermostat["runtime"]["connected"],
-        last_disconnected: DateTime.parse(thermostat["runtime"]["disconnectDateTime"]),
-        last_connected:    DateTime.parse(thermostat["runtime"]["connectDateTime"])
+        last_disconnected: last_disconnected,
+        last_connected:    last_connected
       }
     end
   end

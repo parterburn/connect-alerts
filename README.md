@@ -10,7 +10,6 @@ aws_access_id: something-secret
 aws_access_key: something-secret
 aws_region: us-west-2
 phone: your-phone-number
-timezone: America/Denver
 ```
 
 * `bundle`, `rails db:setup`, `rails db:migrate`, and then `rails s`. Follow the prompts at the root url.
