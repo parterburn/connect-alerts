@@ -4,8 +4,9 @@ namespace :alerts do
     User.all.each do |user|
       status = user.get_latest_status
       if status[:response_code] == "200"
+        status.delete(:full_response)
         changed = (user.last_disconnected != status[:last_disconnected]) || (user.last_connected != status[:last_connected]) || (user.connected != status[:connected])
-        user.update_attributes(status.delete(:full_response))
+        user.update_attributes(status)
 
         if changed && user.connected?
           # show reconnected message
