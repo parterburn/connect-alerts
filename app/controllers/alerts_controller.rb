@@ -46,7 +46,7 @@ class AlertsController < ApplicationController
         human_downtime = human_downtime_parts.map{|k,v| "#{v.round(0)} #{k}"}.to_sentence
 
         connected = status[:connected] ? "connected" : "disconnected"
-        @connected_class = connected ? "text-success" : "text-danger"
+        @connected_class = status[:connected] ? "text-success" : "text-danger"
 
         if status[:last_disconnected].present? && downtime_seconds.positive?
           @additional_message = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
