@@ -12,18 +12,17 @@ class AlertsController < ApplicationController
   private
 
   def get_pin
-    User.destroy_all
-
     resp = HTTParty.get("https://api.ecobee.com/authorize?response_type=ecobeePin&client_id=#{Rails.application.credentials.ecobee_app_key}&scope=smartWrite")
     ecobee_pin = resp.parsed_response["ecobeePin"]
     @code = resp.parsed_response["code"]
     @pin_message = "Login to the Ecobee web portal and add an app with this key in the next 10 minutes: #{ecobee_pin}"
-    User.create(ecobee_pin: ecobee_pin, code: @code, phone: params[:phone])
+    user = User.find_or_create_by(phone: params[:phone])
+    user.update_attributes(ecobee_pin: ecobee_pin, code: @code)
   end
 
   def get_access_token(code)
-    user = User.first
-    if user.code == code
+    user = User.find_by(code: code)
+    if user
       resp = HTTParty.post("https://api.ecobee.com/token?grant_type=ecobeePin&code=#{code}&client_id=#{Rails.application.credentials.ecobee_app_key}&scope=smartWrite")
       if resp.parsed_response["access_token"]
         access_token = resp.parsed_response["access_token"]

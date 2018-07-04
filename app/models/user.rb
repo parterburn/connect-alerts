@@ -1,7 +1,6 @@
 class User < ApplicationRecord
   ENCRYPTED_ATTRIBUTES = %i[
     ecobee_pin
-    code
     access_token
     refresh_token
     thermostat_id
