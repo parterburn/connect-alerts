@@ -1,6 +1,6 @@
 namespace :alerts do
   desc "Send alerts of downtime"
-  task :send_if_down do
+  task :send_if_down => :environment do
     User.all.each do |user|
       status = user.get_latest_status
       changed = user.last_disconnected != status[:last_disconnected]
