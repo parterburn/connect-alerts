@@ -17,8 +17,6 @@ ActiveRecord::Schema.define(version: 2018_07_04_005515) do
   enable_extension "plpgsql"
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "encrypted_phone"
-    t.string "encrypted_phone_iv"
     t.string "encrypted_ecobee_pin"
     t.string "encrypted_ecobee_pin_iv"
     t.string "encrypted_code"
@@ -36,6 +34,7 @@ ActiveRecord::Schema.define(version: 2018_07_04_005515) do
     t.datetime "last_disconnected"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "phone"
   end
 
 end

@@ -6,7 +6,6 @@ class User < ApplicationRecord
     refresh_token
     thermostat_id
     thermostat_name
-    phone
   ].freeze
 
   ENCRYPTED_ATTRIBUTES.each do |attribute|

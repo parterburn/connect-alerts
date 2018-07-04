@@ -27,7 +27,7 @@ namespace :alerts do
 
   def send_sms(user, message)
     sns = Aws::SNS::Client.new(access_key_id: Rails.application.credentials.aws_access_id, secret_access_key: Rails.application.credentials.aws_access_key, region: Rails.application.credentials.aws_region)
-    sns.publish(phone_number: "#{user.phone}", message: message)    
+    sns.publish(phone_number: "#{user.phone}", message: message + "\n\nView the latest status at https://ecobee-down.herokuapp.com/?phone=#{user.phone}")
   end
 
   def message_ecobee(user, message)

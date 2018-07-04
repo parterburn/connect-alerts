@@ -2,9 +2,9 @@ class AlertsController < ApplicationController
   def index
     if params[:code].present?
       get_access_token(params[:code])
-    elsif params[:phone].present?
+    elsif params[:user] == "new"
       get_pin
-    else
+    elsif params[:phone].present?
       connection_status
     end
   end
@@ -38,7 +38,7 @@ class AlertsController < ApplicationController
   end
 
   def connection_status
-    user = User.first
+    user = User.find_by(phone: params[:phone])
     if user.present?
       status = user.get_latest_status
       downtime_seconds = (status[:last_connected].to_i - status[:last_disconnected].to_i)
