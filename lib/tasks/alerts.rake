@@ -1,7 +1,7 @@
 namespace :alerts do
   desc "Send alerts of downtime"
   task :send_if_down do
-    User.each do |user|
+    User.all.each do |user|
       status = user.get_latest_status
       changed = user.last_disconnected != status[:last_disconnected]
       user.update_attributes(status)
