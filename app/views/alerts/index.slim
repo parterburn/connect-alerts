@@ -1,20 +1,46 @@
-center
-  - if params[:code].present?
-    - if @error.present?
-      h3= @error
-      h3= link_to "Try again", root_url(phone: params[:phone])
-    - else
-      h2 Success!
-      h3= link_to "View status", root_url
-  - elsif params[:user] == "new"
-    h2= @pin_message
-    h3= link_to "Ecobee portal", "https://www.ecobee.com/consumerportal/index.html#/my-apps/add/new", target: :blank
-    h3= link_to "Done, next step.", root_url(code: @code, phone: params[:phone])
-  - else
-    - if @message.present?
-      h2= @message
-    - else
-      p
-        | View this page with the url parameter "?phone=15556667777" to lookup a user's latest status.
-    p
-      | Revisit this page with the "?user=new&phone=15556667777" url parameters if you wish to create a new user (using your phone number with the country code + area code).
+.container.text-center
+  .row style="margin-top: 10%;"
+    .col-sm-12
+      h2 style="font-weight: 300;"= link_to "ECOBEE DISCONNECTED ALERTS", root_url, style: "text-decoration: none;"
+  .row style="margin-top: 5%;"
+    .col-sm-10.offset-sm-1
+      - if params[:code].present?
+        - if @error.present?
+          h3= @error
+          br
+          = link_to "Try again", root_url(phone: params[:phone], user: "new"), class: "btn btn-primary btn-block"
+        - else
+          h2 Success!
+          h3= link_to "View status", root_url
+      - elsif params[:user] == "new"
+        h2
+          | Login to the
+          =<> link_to "Ecobee web portal", "https://www.ecobee.com/consumerportal/index.html#/my-apps/add/new", target: :blank
+          | and add an app with this key in the next 10 minutes:
+          code=< @ecobee_pin
+        br
+        = link_to "Done, next step.", root_url(code: @code, phone: params[:phone]), class: "btn btn-primary btn-block"
+      - else
+        - if @message.present?
+          h3 class="#{@connected_class}"= @message
+          - if @additional_message.present?
+            h3.text-muted style="font-weight: normal;"= @additional_message
+        - elsif @error.present?
+          h3= @error
+          br
+          = link_to "Try again", root_url(phone: params[:phone], user: "new"), class: "btn btn-primary btn-block"
+        - else
+          form url=root_url
+            .form-group.text-left
+              .col-sm-8.offset-sm-2
+                label for="phone"
+                  strong Phone number for alerts
+                input.form-control#phone type="phone" name="phone" placeholder="15556667777" required="required"
+                small id="phone" class="form-text text-muted"
+                  | Include the full number with country code. Do not include spaces, dashes, or parenthesis.
+            .form-group.text-center
+              .col-sm-8.offset-sm-2
+                button.btn.btn-primary.form-control type="submit" View Status
+            .form-group.text-center
+              .col-sm-8.offset-sm-2
+                button.btn.btn-secondary.form-control name="user" value="new" type="submit" New User

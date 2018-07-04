@@ -25,23 +25,23 @@ class User < ApplicationRecord
   def get_latest_status
     generate_new_tokens
     resp = HTTParty.get('https://api.ecobee.com/1/thermostat?json={"selection":{"includeAlerts":"true","selectionType":"registered","selectionMatch":"","includeRuntime":"true"}}', headers: {"Authorization" => "Bearer #{access_token}"})
-    thermostat = resp.parsed_response["thermostatList"]&.first
-    local_time_offset = (DateTime.parse(thermostat["thermostatTime"]).to_i - DateTime.parse(thermostat["utcTime"]).to_i).to_f
-    last_disconnected = DateTime.parse(thermostat["runtime"]["disconnectDateTime"]).in_time_zone + local_time_offset rescue nil
-    last_connected = DateTime.parse(thermostat["runtime"]["connectDateTime"]).in_time_zone + local_time_offset rescue nil
-    last_status = DateTime.parse(thermostat["runtime"]["lastStatusModified"]).in_time_zone + local_time_offset rescue nil
-
+    thermostat = resp.parsed_response.try(:[], "thermostatList")&.first
     if thermostat.present?
-      {
-        thermostat_name:   thermostat["name"],
-        thermostat_id:     thermostat["identifier"],
-        connected:         thermostat["runtime"].try(:[], "connected"),
-        last_status:       last_status,
-        last_disconnected: last_disconnected,
-        last_connected:    last_connected,
-        response_code:     resp.response.code,
-        full_response:     resp.parsed_response
-      }
+      local_time_offset = (DateTime.parse(thermostat["thermostatTime"]).to_i - DateTime.parse(thermostat["utcTime"]).to_i).to_f
+      last_disconnected = DateTime.parse(thermostat["runtime"]["disconnectDateTime"]).in_time_zone + local_time_offset rescue nil
+      last_connected = DateTime.parse(thermostat["runtime"]["connectDateTime"]).in_time_zone + local_time_offset rescue nil
+      last_status = DateTime.parse(thermostat["runtime"]["lastStatusModified"]).in_time_zone + local_time_offset rescue nil
     end
+
+    {
+      thermostat_name:   thermostat.try(:[], "name"),
+      thermostat_id:     thermostat.try(:[], "identifier"),
+      connected:         thermostat.try(:[], "runtime").try(:[], "connected"),
+      last_status:       last_status,
+      last_disconnected: last_disconnected,
+      last_connected:    last_connected,
+      response_code:     resp.response.code,
+      full_response:     resp.parsed_response
+    }
   end
 end

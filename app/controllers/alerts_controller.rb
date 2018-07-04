@@ -13,11 +13,10 @@ class AlertsController < ApplicationController
 
   def get_pin
     resp = HTTParty.get("https://api.ecobee.com/authorize?response_type=ecobeePin&client_id=#{Rails.application.credentials.ecobee_app_key}&scope=smartWrite")
-    ecobee_pin = resp.parsed_response["ecobeePin"]
+    @ecobee_pin = resp.parsed_response["ecobeePin"]
     @code = resp.parsed_response["code"]
-    @pin_message = "Login to the Ecobee web portal and add an app with this key in the next 10 minutes: #{ecobee_pin}"
     user = User.find_or_create_by(phone: params[:phone])
-    user.update_attributes(ecobee_pin: ecobee_pin, code: @code)
+    user.update_attributes(ecobee_pin: @ecobee_pin, code: @code)
   end
 
   def get_access_token(code)
@@ -28,6 +27,7 @@ class AlertsController < ApplicationController
         access_token = resp.parsed_response["access_token"]
         refresh_token = resp.parsed_response["refresh_token"]
         user.update_attributes(access_token: access_token, refresh_token: refresh_token)
+        redirect_to root_path(phone: params[:phone])
       else
         @error = "Error: #{resp.parsed_response}"
       end
@@ -40,17 +40,22 @@ class AlertsController < ApplicationController
     user = User.find_by(phone: params[:phone])
     if user.present?
       status = user.get_latest_status
-      downtime_seconds = (status[:last_connected].to_i - status[:last_disconnected].to_i)
-      human_downtime_parts = ActiveSupport::Duration.build(downtime_seconds).parts
-      human_downtime = human_downtime_parts.map{|k,v| "#{v.round(0)} #{k}"}.to_sentence
+      if status[:response_code] == "200"
+        downtime_seconds = (status[:last_connected].to_i - status[:last_disconnected].to_i)
+        human_downtime_parts = ActiveSupport::Duration.build(downtime_seconds).parts
+        human_downtime = human_downtime_parts.map{|k,v| "#{v.round(0)} #{k}"}.to_sentence
 
-      if status[:connected]
-        connected = status[:connected] ? "connected" : "disconnected"
-        if status[:last_disconnected].present?
-          add_msg = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
+        if status[:connected]
+          connected = status[:connected] ? "connected" : "disconnected"
+          if status[:last_disconnected].present?
+            @additional_message = " It was last disconnected for #{human_downtime} from #{status[:last_disconnected].strftime("%a %-m/%-d/%Y %l:%M %p")} — #{status[:last_connected].strftime("%a %-m/%-d/%Y %l:%M %p")}"
+          end
+          @connected_class = connected ? "text-success" : "text-danger"
+          @message = "#{status[:thermostat_name]} is #{connected} as of #{status[:last_status].strftime("%a %-m/%-d/%Y %l:%M %p")}."
         end
-        @message = "#{status[:thermostat_name]} is #{connected} as of #{status[:last_status].strftime("%a %-m/%-d/%Y %l:%M %p")}.#{add_msg}"
-      end      
+      else
+        @error = "#{status[:response_code]} error: #{status[:full_response]}"
+      end     
     end 
   end
 end
