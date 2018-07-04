@@ -31,13 +31,14 @@ class User < ApplicationRecord
       last_disconnected = DateTime.parse(thermostat["runtime"]["disconnectDateTime"]).in_time_zone + local_time_offset rescue nil
       last_connected = DateTime.parse(thermostat["runtime"]["connectDateTime"]).in_time_zone + local_time_offset rescue nil
       last_status = DateTime.parse(thermostat["runtime"]["lastStatusModified"]).in_time_zone + local_time_offset rescue nil
+      latest_timestamp = (last_status > last_disconnected ? last_status: last_disconnected) rescue nil
     end
 
     {
       thermostat_name:   thermostat.try(:[], "name"),
       thermostat_id:     thermostat.try(:[], "identifier"),
       connected:         thermostat.try(:[], "runtime").try(:[], "connected"),
-      last_status:       last_status,
+      last_status:       latest_timestamp,
       last_disconnected: last_disconnected,
       last_connected:    last_connected,
       response_code:     resp.response.code,
