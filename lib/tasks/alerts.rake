@@ -3,7 +3,7 @@ namespace :alerts do
   task :send_if_down => :environment do
     User.all.each do |user|
       status = user.get_latest_status
-      changed = user.last_disconnected != status[:last_disconnected]
+      changed = user.last_connected != status[:last_connected]
       user.update_attributes(status)
 
       if changed && user.connected?

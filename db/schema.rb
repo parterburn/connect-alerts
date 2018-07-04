@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_07_04_005515) do
+ActiveRecord::Schema.define(version: 2018_07_04_065743) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -19,8 +19,6 @@ ActiveRecord::Schema.define(version: 2018_07_04_005515) do
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "encrypted_ecobee_pin"
     t.string "encrypted_ecobee_pin_iv"
-    t.string "encrypted_code"
-    t.string "encrypted_code_iv"
     t.string "encrypted_access_token"
     t.string "encrypted_access_token_iv"
     t.string "encrypted_refresh_token"
@@ -35,6 +33,8 @@ ActiveRecord::Schema.define(version: 2018_07_04_005515) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "phone"
+    t.string "code"
+    t.datetime "last_status"
   end
 
 end
